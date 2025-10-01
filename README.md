@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Product AI Demo
 
-## Getting Started
+An AI-powered product discovery demo built with Next.js (App Router), MongoDB, and Pinecone. Users can browse products and view AI-recommended similar products using embeddings generated via the Hugging Face Inference API.
 
-First, run the development server:
+### Tech Stack
+- **Frontend**: Next.js 15 (App Router), React 19, Tailwind CSS 4
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB with Mongoose
+- **Vector DB**: Pinecone
+- **Embeddings**: Hugging Face `sentence-transformers/all-MiniLM-L6-v2` via Inference API
 
+---
+
+## Quick Start
+
+1) Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2) Create environment file `.env.local`
+```bash
+MONGO_URI=your_mongodb_connection_string
+PINECONE_API_KEY=your_pinecone_api_key
+PINECONE_INDEX_NAME=your_index_name
+HF_TOKEN=your_huggingface_api_token
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+3) Run the app (dev)
+```bash
+npm run dev
+```
+Open http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4) Seed Pinecone vectors (after you have products in MongoDB)
+```bash
+node seedPinecone.js
+```
 
-## Learn More
+> Note: Ensure your Pinecone index (name in `PINECONE_INDEX_NAME`) exists and is configured for the embedding dimension returned by the Hugging Face model.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
+- `npm run dev` — start Next.js in development (Turbopack)
+- `npm run build` — build for production (Turbopack)
+- `npm run start` — start production server
+- `npm run lint` — run ESLint
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Environment Variables
+- `MONGO_URI`: MongoDB connection string
+- `PINECONE_API_KEY`: Pinecone API key
+- `PINECONE_INDEX_NAME`: Pinecone index name
+- `HF_TOKEN`: Hugging Face Inference API token
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Create `.env.local` at the project root. Next.js automatically loads it.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Project Structure
+```
+src/
+  app/
+    api/
+      products/
+        route.js                # GET all products
+        [id]/route.js           # GET product by id + similar via Pinecone
+    components/
+      ProductCard.jsx
+    lib/
+      db.js                     # Mongo connection helper
+      pinecone.js               # Pinecone client helper
+    models/
+      product.js                # Product Mongoose model
+    page.js                     # Home page
+    products/
+      page.jsx                  # Product list page
+      [id]/page.jsx             # Product detail w/ similar products
+seedPinecone.js                 # Seeds Pinecone from Mongo products
+```
+
+---
+
+## API
+
+### GET /api/products
+Returns a list of products from MongoDB.
+
+Example response:
+```json
+[
+  {
+    "_id": "...",
+    "name": "...",
+    "category": "...",
+    "price": 0,
+    "description": "...",
+    "image": "..."
+  }
+]
+```
+
+### GET /api/products/[id]
+Returns a single product and a list of similar products (via Pinecone vector search using an embedding of the product name + description).
+
+Example response:
+```json
+{
+  "product": { "_id": "...", "name": "...", "description": "..." },
+  "similarProducts": [
+    { "id": "...", "score": 0.87, "name": "...", "category": "...", "price": 0, "description": "...", "image": "..." }
+  ]
+}
+```
+
+---
+
+## Data & Seeding
+- Products are stored in MongoDB using the `Product` model.
+- `seedPinecone.js` reads products from MongoDB, generates embeddings using the Hugging Face Inference API, and upserts vectors to Pinecone with product metadata.
+- Ensure your MongoDB has product documents before running the seed. You can insert them manually or via a custom script/UI.
+
+---
+
+## Development Notes
+- This project uses the Next.js App Router (`src/app`).
+- UI styling uses Tailwind CSS 4. Adjust global styles in `src/app/globals.css`.
+- React loading states are handled with `react-spinners`.
+
+---
+
+## Troubleshooting
+- "MongoDB connection failed": verify `MONGO_URI` and network access.
+- Pinecone errors: confirm `PINECONE_API_KEY`/`PINECONE_INDEX_NAME` and index dimension/region.
+- Hugging Face API errors: ensure `HF_TOKEN` has access, check rate limits.
+- 404 on product detail: make sure the `id` exists in MongoDB and that `seedPinecone.js` ran (for similar results).
+
+---
+
+## License
+This repository is for demo and educational purposes.
