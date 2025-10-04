@@ -22,13 +22,6 @@ export default function Home() {
           Explore Products
         </button>
       </section>
-      <div className="mt-16 w-full max-w-5xl">
-        <img
-          src="https://images.unsplash.com/photo-1606813908255-1dc3f3c73887?auto=format&fit=crop&w=1400&q=80"
-          alt="Hero banner"
-          className="w-full rounded-3xl shadow-2xl object-cover"
-        />
-      </div>
     </main>
   );
 }
