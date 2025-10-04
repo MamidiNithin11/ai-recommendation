@@ -6,7 +6,6 @@ export default function Home() {
 
   return (
     <main className="bg-gradient-to-b from-blue-50 to-white min-h-screen flex flex-col justify-center items-center px-6 py-16">
-      {/* Hero Section */}
       <section className="text-center max-w-3xl">
         <h1 className="text-6xl md:text-7xl font-extrabold text-blue-800 mb-6 drop-shadow-lg">
           Welcome to ShopEase
@@ -23,8 +22,6 @@ export default function Home() {
           Explore Products
         </button>
       </section>
-
-      {/* Hero Image */}
       <div className="mt-16 w-full max-w-5xl">
         <img
           src="https://images.unsplash.com/photo-1606813908255-1dc3f3c73887?auto=format&fit=crop&w=1400&q=80"
